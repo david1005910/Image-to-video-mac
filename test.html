@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>서버 테스트</title>
+</head>
+<body>
+    <h1>서버 연결 테스트</h1>
+    <button onclick="testServer()">서버 테스트</button>
+    <div id="result"></div>
+    
+    <script>
+        function testServer() {
+            fetch('http://localhost:3000/api/video/test')
+                .then(res => res.text())
+                .then(data => {
+                    document.getElementById('result').innerHTML = '서버 응답: ' + data;
+                })
+                .catch(err => {
+                    document.getElementById('result').innerHTML = '오류: ' + err;
+                });
+        }
+        
+        // 페이지 로드 시 자동 테스트
+        window.onload = function() {
+            document.getElementById('result').innerHTML = '페이지가 정상적으로 로드되었습니다. 서버 URL: http://localhost:3000';
+        }
+    </script>
+</body>
+</html>

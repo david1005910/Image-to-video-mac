@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Video Test</title>
+</head>
+<body>
+    <h1>비디오 생성 테스트</h1>
+    <div id="status"></div>
+    <script>
+        async function testVideoGeneration() {
+            const status = document.getElementById('status');
+            
+            // 테스트 이미지 업로드
+            const formData = new FormData();
+            formData.append('title', 'Debug Test');
+            formData.append('style', 'slideshow');
+            formData.append('duration', '3');
+            formData.append('transition', 'fade');
+            
+            // 기존 이미지 파일 사용
+            const imageUrl = '/uploads/24d29458-79bb-4803-af09-30e4a700766b.jpg';
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            formData.append('images', blob, 'test.jpg');
+            
+            status.innerHTML = '<p>업로드 중...</p>';
+            
+            const uploadRes = await fetch('/api/upload', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const uploadData = await uploadRes.json();
+            console.log('Upload response:', uploadData);
+            
+            if (!uploadRes.ok) {
+                status.innerHTML = `<p style="color:red;">업로드 실패: ${uploadData.error}</p>`;
+                return;
+            }
+            
+            status.innerHTML = `<p>Video ID: ${uploadData.videoId}</p><p>렌더링 시작...</p>`;
+            
+            // 렌더링 시작
+            const renderRes = await fetch(`/api/video/${uploadData.videoId}/render`, {
+                method: 'POST'
+            });
+            
+            if (!renderRes.ok) {
+                status.innerHTML += '<p style="color:red;">렌더링 시작 실패</p>';
+                return;
+            }
+            
+            // 상태 확인
+            let attempts = 0;
+            const interval = setInterval(async () => {
+                attempts++;
+                const statusRes = await fetch(`/api/video/${uploadData.videoId}`);
+                const video = await statusRes.json();
+                
+                console.log('Video status:', video);
+                
+                if (video.status === 'completed') {
+                    clearInterval(interval);
+                    status.innerHTML = `
+                        <p style="color:green;">✅ 렌더링 완료!</p>
+                        <p>Output: ${video.outputPath}</p>
+                        <a href="/output/${uploadData.videoId}.mp4" download>다운로드</a>
+                        <br><br>
+                        <video controls width="400">
+                            <source src="/output/${uploadData.videoId}.mp4" type="video/mp4">
+                        </video>
+                    `;
+                } else if (video.status === 'failed') {
+                    clearInterval(interval);
+                    status.innerHTML = '<p style="color:red;">❌ 렌더링 실패</p>';
+                } else {
+                    status.innerHTML = `<p>상태: ${video.status} (시도: ${attempts})</p>`;
+                }
+                
+                if (attempts > 30) {
+                    clearInterval(interval);
+                    status.innerHTML += '<p style="color:orange;">타임아웃</p>';
+                }
+            }, 2000);
+        }
+        
+        // 자동 실행
+        testVideoGeneration();
+    </script>
+</body>
+</html>

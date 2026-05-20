@@ -1,0 +1,77 @@
+# Dependencies
+node_modules/
+.npm
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Database
+prisma/dev.db
+prisma/dev.db-journal
+*.db
+*.db-journal
+
+# Build output
+dist/
+build/
+.next/
+out/
+
+# Temporary files
+temp/
+tmp/
+*.tmp
+*.temp
+
+# Uploads and outputs
+public/uploads/*
+public/output/*
+!public/uploads/.gitkeep
+!public/output/.gitkeep
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# IDE
+.idea/
+.vscode/
+*.sublime-workspace
+
+# Test coverage
+coverage/
+.nyc_output
+
+# Redis
+dump.rdb
+
+# TypeScript
+*.tsbuildinfo
+
+# Chrome Extension temporary files
+chrome-extension/*.pem
+chrome-extension.crx
+chrome-extension.zip
+
+# Remotion
+.remotion/
+
+# Misc
+.cache/
+*.pid
+*.seed
+*.pid.lock

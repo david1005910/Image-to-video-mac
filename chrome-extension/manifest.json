@@ -1,0 +1,52 @@
+{
+  "manifest_version": 3,
+  "name": "Midjourney to Video Creator",
+  "version": "1.0.0",
+  "description": "Midjourney 이미지를 자동으로 수집하고 동영상으로 변환하는 Extension",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "downloads",
+    "webRequest",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://discord.com/*",
+    "https://www.midjourney.com/*",
+    "https://cdn.midjourney.com/*",
+    "http://localhost:3000/*",
+    "http://localhost/*",
+    "file:///*",
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://discord.com/*", "https://www.midjourney.com/*", "file:///*", "http://localhost/*"],
+      "js": ["content.js"],
+      "css": ["style.css"]
+    }
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icon-16.png",
+      "48": "icon-48.png",
+      "128": "icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "icon-16.png",
+    "48": "icon-48.png",
+    "128": "icon-128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": ["inject.js"],
+      "matches": ["https://discord.com/*", "https://www.midjourney.com/*"]
+    }
+  ]
+}

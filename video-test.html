@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>동영상 재생 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f0f0f0;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        h1 { color: #333; }
+        .video-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .video-item {
+            background: #f8f8f8;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .video-item h3 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        video {
+            width: 100%;
+            height: auto;
+            background: black;
+            border-radius: 5px;
+        }
+        .error {
+            color: red;
+            padding: 10px;
+            background: #ffe0e0;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        .status {
+            margin-top: 10px;
+            padding: 10px;
+            background: #e0f7fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 생성된 동영상 재생 테스트</h1>
+        
+        <button onclick="loadVideos()">동영상 목록 새로고침</button>
+        <button onclick="testLatestVideo()">최신 동영상 테스트</button>
+        
+        <div class="status" id="status">대기 중...</div>
+        
+        <div class="video-grid" id="videoGrid">
+            <!-- 동영상이 여기에 표시됩니다 -->
+        </div>
+        
+        <h2>직접 동영상 테스트</h2>
+        <input type="text" id="videoId" placeholder="Video ID 입력" style="width: 300px; padding: 5px;">
+        <button onclick="testSpecificVideo()">테스트</button>
+        
+        <div id="directTest"></div>
+    </div>
+    
+    <script>
+        // 생성된 동영상 ID들
+        const videoIds = [
+            'a6f8a797-3f35-4bb0-893d-33211f22be3e',
+            'f0077687-bb2b-410f-a6c8-1ed364635bb9',
+            '8e2fe401-4d7e-46da-a079-9c238c822c1f',
+            '9272203c-6298-47fe-ab59-dbe39fa519d4'
+        ];
+        
+        function loadVideos() {
+            const grid = document.getElementById('videoGrid');
+            grid.innerHTML = '';
+            
+            videoIds.forEach(id => {
+                const div = document.createElement('div');
+                div.className = 'video-item';
+                div.innerHTML = `
+                    <h3>Video ID: ${id}</h3>
+                    <video controls>
+                        <source src="http://localhost:3000/output/${id}.mp4" type="video/mp4">
+                        브라우저가 비디오를 지원하지 않습니다.
+                    </video>
+                    <div style="margin-top: 10px;">
+                        <a href="http://localhost:3000/output/${id}.mp4" download>
+                            📥 다운로드
+                        </a>
+                    </div>
+                `;
+                grid.appendChild(div);
+            });
+            
+            document.getElementById('status').innerHTML = `✅ ${videoIds.length}개의 동영상을 로드했습니다.`;
+        }
+        
+        async function testLatestVideo() {
+            const status = document.getElementById('status');
+            status.innerHTML = '🔍 최신 동영상 정보를 가져오는 중...';
+            
+            try {
+                // 데이터베이스에서 최신 완료된 비디오 찾기
+                const response = await fetch('http://localhost:3000/api/video');
+                if (!response.ok) {
+                    throw new Error('API 응답 실패');
+                }
+                
+                const videos = await response.json();
+                const completed = videos.filter(v => v.status === 'completed');
+                
+                if (completed.length > 0) {
+                    const latest = completed[0];
+                    status.innerHTML = `✅ 최신 비디오: ${latest.id}`;
+                    
+                    // 비디오 표시
+                    const grid = document.getElementById('videoGrid');
+                    const div = document.createElement('div');
+                    div.className = 'video-item';
+                    div.innerHTML = `
+                        <h3>최신: ${latest.title} (${latest.id})</h3>
+                        <video controls autoplay>
+                            <source src="http://localhost:3000/output/${latest.id}.mp4" type="video/mp4">
+                        </video>
+                    `;
+                    grid.insertBefore(div, grid.firstChild);
+                } else {
+                    status.innerHTML = '⚠️ 완료된 비디오가 없습니다.';
+                }
+            } catch (error) {
+                status.innerHTML = `❌ 오류: ${error.message}`;
+            }
+        }
+        
+        function testSpecificVideo() {
+            const videoId = document.getElementById('videoId').value;
+            if (!videoId) {
+                alert('Video ID를 입력하세요');
+                return;
+            }
+            
+            const testDiv = document.getElementById('directTest');
+            testDiv.innerHTML = `
+                <div class="video-item" style="margin-top: 20px;">
+                    <h3>테스트: ${videoId}</h3>
+                    <video controls autoplay>
+                        <source src="http://localhost:3000/output/${videoId}.mp4" type="video/mp4">
+                        비디오를 재생할 수 없습니다.
+                    </video>
+                    <div style="margin-top: 10px;">
+                        URL: http://localhost:3000/output/${videoId}.mp4
+                    </div>
+                </div>
+            `;
+        }
+        
+        // 페이지 로드 시 자동으로 비디오 로드
+        window.onload = function() {
+            loadVideos();
+        };
+    </script>
+</body>
+</html>
