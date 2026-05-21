@@ -6,6 +6,8 @@ class MidjourneyVideoCreator {
     this.observer = null;
     this.isCollecting = false;
     this.init();
+    // 저장된 이미지 불러오기
+    this.loadFromStorage();
   }
 
   init() {
@@ -328,9 +330,18 @@ class MidjourneyVideoCreator {
     
     for (let imageData of this.images) {
       try {
-        const response = await fetch(imageData.url);
-        const blob = await response.blob();
-        blobs.push(blob);
+        // Data URL 이미지 처리 (업로드된 파일)
+        if (imageData.url.startsWith('data:')) {
+          const response = await fetch(imageData.url);
+          const blob = await response.blob();
+          blobs.push(blob);
+        } 
+        // 일반 URL 이미지 처리
+        else {
+          const response = await fetch(imageData.url);
+          const blob = await response.blob();
+          blobs.push(blob);
+        }
       } catch (error) {
         console.error('Image download failed:', imageData.url, error);
       }
@@ -457,3 +468,29 @@ class MidjourneyVideoCreator {
 
 // 초기화
 const mjVideoCreator = new MidjourneyVideoCreator();
+
+// Popup과의 통신을 위한 메시지 리스너 추가
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'startCollect') {
+    mjVideoCreator.startCollecting();
+    sendResponse({ success: true });
+  } else if (request.action === 'stopCollect') {
+    mjVideoCreator.stopCollecting();
+    sendResponse({ success: true });
+  } else if (request.action === 'createVideo') {
+    mjVideoCreator.createVideo();
+    sendResponse({ success: true });
+  } else if (request.action === 'clearImages') {
+    mjVideoCreator.clearImages();
+    sendResponse({ success: true });
+  } else if (request.action === 'getImages') {
+    sendResponse({ images: mjVideoCreator.images });
+  } else if (request.action === 'imageDeleted') {
+    // popup에서 이미지가 삭제되면 동기화
+    mjVideoCreator.loadFromStorage();
+    sendResponse({ success: true });
+  } else if (request.action === 'ping') {
+    sendResponse({ pong: true });
+  }
+  return true;
+});

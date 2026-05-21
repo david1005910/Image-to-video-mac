@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+    <!-- 배경 원 (그라디언트) -->
+    <defs>
+        <radialGradient id="bg-gradient-48">
+            <stop offset="0%" style="stop-color:#764ba2;stop-opacity:1" />
+            <stop offset="100%" style="stop-color:#667eea;stop-opacity:1" />
+        </radialGradient>
+    </defs>
+    
+    <!-- 배경 -->
+    <circle cx="24" cy="24" r="21.6" fill="url(#bg-gradient-48)" />
+    
+    <!-- 비디오 카메라 아이콘 -->
+    <!-- 카메라 본체 -->
+    <rect x="12.75" y="16.5" 
+          width="22.5" height="15" 
+          fill="white" rx="1.875" />
+    
+    <!-- 카메라 렌즈 -->
+    <circle cx="29.625" cy="24" r="5.625" fill="#333" />
+    <circle cx="29.625" cy="24" r="1.875" fill="#666" />
+    
+    <!-- 녹화 표시 -->
+    <circle cx="16.5" cy="20.25" r="1.875" fill="#ff0000">
+        <animate attributeName="opacity" values="1;0.3;1" dur="2s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- 플레이 버튼 -->
+    <path d="M 20.25 19.5 
+             L 20.25 28.5 
+             L 27 24 Z" 
+          fill="rgba(255,255,255,0.8)" />
+</svg>
